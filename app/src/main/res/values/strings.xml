@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">Movie DB</string>
-
+    <string name="movie_list">Movie list</string>
     <string name="movie_detail">Movie details</string>
 
+    <!--    Button names    -->
     <string name="back_button">Back</string>
+    <string name="popular">Popular</string>
 </resources>

@@ -27,11 +27,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.moviedb.screens.MovieDetailsScreen
 import com.example.moviedb.screens.MovieListScreen
+import com.example.moviedb.ui.theme.screens.StartScreen
 import com.example.moviedb.viewmodels.MovieDBViewModel
 import com.example.themoviedb.database.Movies
 
 enum class MovieDBScreen(@StringRes val title: Int) {
-    List(title = R.string.app_name),
+    Start(title = R.string.app_name),
+    List(title = R.string.movie_list),
     Detail(title = R.string.movie_detail)
 }
 
@@ -70,7 +72,7 @@ fun MovieDBApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
 
     val currentScreen = MovieDBScreen.valueOf(
-        backStackEntry?.destination?.route ?: MovieDBScreen.List.name
+        backStackEntry?.destination?.route ?: MovieDBScreen.Start.name
     )
 
     Scaffold(
@@ -86,11 +88,21 @@ fun MovieDBApp(
 
         NavHost(
             navController = navController,
-            startDestination = MovieDBScreen.List.name,
+            startDestination = MovieDBScreen.Start.name,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+
+            composable(route = MovieDBScreen.Start.name) {
+                 StartScreen(
+                     onOptionClicked = { navController.navigate(MovieDBScreen.List.name) },
+                     modifier = Modifier
+                         .fillMaxSize()
+                         .padding(16.dp)
+                 )
+            }
+
             composable(route = MovieDBScreen.List.name) {
                 MovieListScreen(
                     movieList = Movies().getMovies(),

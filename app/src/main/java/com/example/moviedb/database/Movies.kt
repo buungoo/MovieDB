@@ -3,48 +3,92 @@ package com.example.themoviedb.database
 import com.example.moviedb.model.Movie
 
 class Movies {
-    fun getMovies(): List <Movie> {
-        return listOf<Movie>(
-            Movie(
-                1,
-                "Raya and the Last Dragon",
-                "/lPsD10PP4rgUGiGR4CCXA6iY0QQ.jpg",
-                "/9xeEGUZjgiKlI69jwIOi0hjKUIk.jpg",
-                "2021-03-03",
-                "Long ago, in the fantasy world of Kumandra, humans and dragons lived together in harmony. But when an evil force threatened the land, the dragons sacrificed themselves to save humanity. Now, 500 years later, that same evil has returned and it’s up to a lone warrior, Raya, to track down the legendary last dragon to restore the fractured land and its divided people."
+    fun getMovies(): List<Movie> {
+        return listOf<Movie> (
+
+            Movie(1,
+                "After the Pandemic",
+                "/p1LbrdJ53dGfEhRopG71akfzOVu.jpg",
+                "/9c0lHTXRqDBxeOToVzRu0GArSne.jpg",
+                "2022-03-01",
+                "Set in a post-apocalyptic world where a global airborne pandemic has wiped " +
+                        "out 90% of the Earth's population and only the young and immune have endured " +
+                        "as scavengers. For Ellie and Quinn, the daily challenges to stay alive are " +
+                        "compounded when they become hunted by the merciless Stalkers.",
+                listOf("Science Fiction", "Action"),
+                null,
+                "tt12774526"
             ),
-            Movie(
-                2,
-                "Sentinelle",
-                "/fFRq98cW9lTo6di2o4lK1qUAWaN.jpg",
-                "/6TPZSJ06OEXeelx1U1VIAt0j9Ry.jpg",
-                "2021-03-05",
-                "Transferred home after a traumatizing combat mission, a highly trained French soldier uses her lethal skills to hunt down the man who hurt her sister."
+
+            Movie(2,
+                "Road House",
+                "/bXi6IQiQDHD00JFio5ZSZOeRSBh.jpg",
+                "/oe7mWkvYhK4PLRNAVSvonzyUXNy.jpg",
+                "2024-03-08",
+                "Ex-UFC fighter Dalton takes a job as a bouncer at a Florida Keys " +
+                        "roadhouse, only to discover that this paradise is not all it seems.",
+                listOf("Action", "Thriller"),
+                "https://www.amazon.com/gp/video/detail/B0CH5YQPZQ",
+                "tt3359350"
             ),
-            Movie(
-                3,
-                "Zack Snyder's Justice League",
-                "/tnAuB8q5vv7Ax9UAEje5Xi4BXik.jpg",
-                "/pcDc2WJAYGJTTvRSEIpRZwM3Ola.jpg",
-                "2021-03-18",
-                "Determined to ensure Superman's ultimate sacrifice was not in vain, Bruce Wayne aligns forces with Diana Prince with plans to recruit a team of metahumans to protect the world from an approaching threat of catastrophic proportions."
+
+            Movie(3,
+                "Migration",
+                "/ldfCF9RhR40mppkzmftxapaHeTo.jpg",
+                "/2KGxQFV9Wp1MshPBf8BuqWUgVAz.jpg",
+                "2023-12-06",
+                "After a migrating duck family alights on their pond with thrilling tales " +
+                        "of far-flung places, the Mallard family embarks on a family road trip, " +
+                        "from New England, to New York City, to tropical Jamaica.",
+                //3,
+                listOf("Animation", "Action", "Adventure", "Comedy", "Family"),
+                "https://www.migration.movie",
+                "tt6495056"
             ),
-            Movie(
-                4,
-                "Tom & Jerry",
-                "/6KErczPBROQty7QoIsaa6wJYXZi.jpg",
-                "/z7HLq35df6ZpRxdMAE0qE3Ge4SJ.jpg",
-                "2021-02-11",
-                "Tom the cat and Jerry the mouse get kicked out of their home and relocate to a fancy New York hotel, where a scrappy employee named Kayla will lose her job if she can’t evict Jerry before a high-class wedding at the hotel. Her solution? Hiring Tom to get rid of the pesky mouse."
+
+            Movie(4,
+                "Hunters",
+                "/3UKlVa1CBeQkRksHV5OfFTO52qd.jpg",
+                "/rKmp0vm6PNaFA0g1bzM70eyWJ6I.jpg",
+                "2021-09-13",
+                "As John T. Wrecker continues his task of protecting a group of refugees " +
+                        "from a virus, the threat of something new and even more dangerous " +
+                        "grows ever closer in the form of monstrous mutants.",
+                listOf("Action"),
+                null,
+                "tt13936336"
             ),
-            Movie(
-                5,
-                "Below Zero",
-                "/dWSnsAGTfc8U27bWsy2RfwZs0Bs.jpg",
-                "/srYya1ZlI97Au4jUYAktDe3avyA.jpg",
-                "2021-01-29",
-                "When a prisoner transfer van is attacked, the cop in charge must fight those inside and outside while dealing with a silent foe: the icy temperatures."
+
+            Movie(5,
+                "Dune: Part Two",
+                "/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
+                "/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
+                "2024-02-27",
+                "Follow the mythic journey of Paul Atreides as he unites with Chani and the " +
+                        "Fremen while on a path of revenge against the conspirators who destroyed his family." +
+                        " Facing a choice between the love of his life and the fate of the known universe, " +
+                        "Paul endeavors to prevent a terrible future only he can foresee.",
+                listOf("Science Fiction", "Adventure"),
+                "https://www.dunemovie.com",
+                "tt15239678"
             ),
+
+            Movie(6,
+                "Dune",
+                "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
+                "/lzWHmYdfeFiMIY4JaMmtR7GEli3.jpg",
+                "2021-09-15",
+                "Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, " +
+                        "must travel to the most dangerous planet in the universe to ensure the future of his family and his people. " +
+                        "As malevolent forces explode into conflict over the planet's exclusive supply of the most precious resource in existence-a " +
+                        "commodity capable of unlocking humanity's greatest potential-only those who can conquer their fear will survive.",
+                listOf(
+                    "Science Fiction",
+                    "Adventure"
+                ),
+                "https://www.dunemovie.com/",
+                "tt1160419"
+            )
         )
     }
 }
