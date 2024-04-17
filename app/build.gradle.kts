@@ -62,6 +62,8 @@ dependencies {
 
     // Coil Image dependency
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
