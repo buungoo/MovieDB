@@ -22,20 +22,45 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.moviedb.model.Movie
 import com.example.moviedb.utils.Constants
+import com.example.moviedb.viewmodels.MovieListUiState
 
 @Composable
 fun MovieListScreen(
-    movieList: List<Movie>,
+    movieListUiState: MovieListUiState,
     onMovieClicked: (Movie) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(movieList) { movie ->
-            MovieCard(
-                movie = movie,
-                onMovieClicked,
-                modifier = Modifier.padding(8.dp)
-            )
+        when(movieListUiState) {
+            is MovieListUiState.Success -> {
+                items(movieListUiState.movies) { movie ->
+                    MovieCard(
+                        movie = movie,
+                        onMovieClicked,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+
+            is MovieListUiState.Loading -> {
+                item {
+                    Text(
+                        text = "Loading...",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            is MovieListUiState.Error -> {
+                item {
+                    Text(
+                        text = "Error: Something went wrong!",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
         }
     }
 }
