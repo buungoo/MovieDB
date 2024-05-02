@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MovieResponse(
     @SerialName(value = "page")
-    var page: Int = 0,
+    var page: Long = 0,
 
     @SerialName(value = "results")
     var results: List<Movie> = listOf(),

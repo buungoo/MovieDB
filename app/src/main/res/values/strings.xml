@@ -6,4 +6,5 @@
     <!--    Button names    -->
     <string name="back_button">Back</string>
     <string name="popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
 </resources>

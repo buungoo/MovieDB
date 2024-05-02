@@ -23,19 +23,9 @@ data class Movie(
     @SerialName(value = "poster_path")
     var posterPath: String,
 
-    @SerialName(value = "backdrop_path")
-    var backdropPath: String,
-
     @SerialName(value = "release_date")
     var releaseDate: String,
 
     @SerialName(value = "overview")
     var overview: String,
-
-    @SerialName(value = "genre_ids")
-    var categories: List<Int>,
-
-    var homePageUrl: String? = null,
-
-    var imdbId: String = "888888"
 )

@@ -18,7 +18,7 @@ import com.example.moviedb.R
 
 @Composable
 fun StartScreen(
-    onOptionClicked: () -> Unit,
+    onOptionClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -29,11 +29,18 @@ fun StartScreen(
         Column {
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = onOptionClicked,
+                onClick = { onOptionClicked("popular") },
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
                 Text(text = stringResource(R.string.popular))
+            }
+            Button(
+                onClick = { onOptionClicked("top_rated") },
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.top_rated))
             }
             Spacer(modifier = Modifier.weight(1f))
         }

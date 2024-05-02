@@ -26,6 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.moviedb.screens.MovieDetailScreen
 import com.example.moviedb.screens.MovieListScreen
+import com.example.moviedb.ui.theme.screens.MovieListGridScreen
 import com.example.moviedb.ui.theme.screens.StartScreen
 import com.example.moviedb.viewmodels.MovieDBViewModel
 
@@ -90,25 +91,23 @@ fun MovieDBApp(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+
             composable(route = MovieDBScreen.Start.name) {
                  StartScreen(
-                     onOptionClicked = { navController.navigate(MovieDBScreen.List.name) },
                      modifier = Modifier
                          .fillMaxSize()
-                         .padding(16.dp)
+                         .padding(16.dp),
+                     onOptionClicked = { option ->
+                         print(option)
+                         movieDBViewModel.setSelectedMovieCategory(option)
+                         navController.navigate(MovieDBScreen.List.name)
+                     }
                  )
             }
 
             composable(route = MovieDBScreen.List.name) {
-                MovieListScreen(
-//                    movieList = Movies().getMovies(),
-//                    onMovieClicked = { movie ->
-//                        viewModel.setSelectedMovie(movie)
-//                        navController.navigate(MovieDBScreen.Detail.name)
-//                    },
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .padding(16.dp)
+                MovieListGridScreen(
+                    gridWidth = 3,
                     movieListUiState = movieDBViewModel.movieListUiState,
                     onMovieClicked = { movie ->
                         movieDBViewModel.setSelectedMovie(movie)
@@ -116,6 +115,7 @@ fun MovieDBApp(
                     }
                 )
             }
+
             composable(route = MovieDBScreen.Detail.name) {
                 MovieDetailScreen(
                     selectedMovieUiState = movieDBViewModel.selectedMovieUiState,

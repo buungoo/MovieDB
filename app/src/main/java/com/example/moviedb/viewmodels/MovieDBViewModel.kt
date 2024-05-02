@@ -11,6 +11,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.moviedb.MovieDBApplication
 import com.example.moviedb.database.MoviesRepository
 import com.example.moviedb.model.Movie
+import com.example.moviedb.model.MovieDetails
+import com.example.moviedb.model.MovieReviews
+import com.example.moviedb.model.MovieVideos
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -22,21 +25,15 @@ sealed interface MovieListUiState {
 }
 
 sealed interface SelectedMovieUiState {
-    data class Success(val movie: Movie) : SelectedMovieUiState
+    data class Success(
+        val movie: Movie,
+        val movieDetails: MovieDetails,
+        val movieReviews: MovieReviews,
+        val movieVideos: MovieVideos
+    ) : SelectedMovieUiState
     object Error : SelectedMovieUiState
     object Loading : SelectedMovieUiState
 }
-
-//class MovieDBViewModel: ViewModel() {
-//    private val _uiState = MutableStateFlow(MovieDBUiState())
-//    val uiState: StateFlow<MovieDBUiState> = _uiState.asStateFlow()
-//
-//    fun setSelectedMovie(movie: Movie) {
-//        _uiState.update {
-//            it.copy(selectedMovie = movie)
-//        }
-//    }
-//}
 
 class MovieDBViewModel(private val moviesRepository: MoviesRepository) : ViewModel() {
 
@@ -63,7 +60,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository) : ViewMod
         }
     }
 
-    fun getPopularMovies() {
+    private fun getPopularMovies() {
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
@@ -80,11 +77,28 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository) : ViewMod
         viewModelScope.launch {
             selectedMovieUiState = SelectedMovieUiState.Loading
             selectedMovieUiState = try {
-                SelectedMovieUiState.Success(movie)
+                val movieDetails = moviesRepository.getMovieDetails(movie.id)
+                val movieReviews = moviesRepository.getMovieReviews(movie.id)
+                val movieVideos = moviesRepository.getMovieVideos(movie.id)
+                SelectedMovieUiState.Success(movie, movieDetails, movieReviews, movieVideos)
             } catch (e: IOException) {
                 SelectedMovieUiState.Error
             } catch (e: HttpException) {
                 SelectedMovieUiState.Error
+            }
+        }
+    }
+
+    fun setSelectedMovieCategory(option: String) {
+        when (option) {
+            "popular" -> {
+                getPopularMovies()
+            }
+            "top_rated" -> {
+                getTopRatedMovies()
+            }
+            else -> {
+                getPopularMovies()
             }
         }
     }
