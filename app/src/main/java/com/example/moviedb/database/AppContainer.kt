@@ -1,5 +1,6 @@
 package com.example.moviedb.database
 
+import android.content.Context
 import com.example.moviedb.network.MovieDBApiService
 import com.example.moviedb.utils.Constants
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -10,9 +11,10 @@ import retrofit2.Retrofit
 
 interface AppContainer {
     val moviesRepository: MoviesRepository
+    val savedMovieRepository: SavedMovieRepository
 }
 
-class DefaultAppContainer: AppContainer {
+class DefaultAppContainer(private val context: Context): AppContainer {
     fun getLoggerInterceptor(): HttpLoggingInterceptor {
         val logging = HttpLoggingInterceptor()
         logging.level = HttpLoggingInterceptor.Level.BODY
@@ -41,5 +43,9 @@ class DefaultAppContainer: AppContainer {
 
     override val moviesRepository: MoviesRepository by lazy {
         NetworkMoviesRepository(retrofitService)
+    }
+
+    override val savedMovieRepository: SavedMovieRepository by lazy {
+        FavoriteMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
     }
 }

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+//    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
 }
 
 android {
@@ -77,6 +78,9 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 //    implementation(libs.androidx.room.common)
 //    implementation(libs.androidx.room.ktx)
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+//    ksp("androidx.room:room-compiler:$2.6.1")
 
 
     testImplementation(libs.junit)

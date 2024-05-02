@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.moviedb.MovieDBApplication
+import com.example.moviedb.database.FavoriteMoviesRepository
 import com.example.moviedb.database.MoviesRepository
+import com.example.moviedb.database.SavedMovieRepository
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieDetails
 import com.example.moviedb.model.MovieReviews
@@ -35,7 +37,7 @@ sealed interface SelectedMovieUiState {
     object Loading : SelectedMovieUiState
 }
 
-class MovieDBViewModel(private val moviesRepository: MoviesRepository) : ViewModel() {
+class MovieDBViewModel(private val moviesRepository: MoviesRepository, private val savedMovieRepository: SavedMovieRepository: SavedMovieRepository) : ViewModel() {
 
     var movieListUiState: MovieListUiState by mutableStateOf(MovieListUiState.Loading)
         private set
@@ -65,6 +67,19 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository) : ViewMod
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
                 MovieListUiState.Success(moviesRepository.getPopularMovies().results)
+            } catch (e: IOException) {
+                MovieListUiState.Error
+            } catch (e: HttpException) {
+                MovieListUiState.Error
+            }
+        }
+    }
+
+    private fun getSavedMovies() {
+        viewModelScope.launch {
+            movieListUiState = MovieListUiState.Loading
+            movieListUiState = try {
+                MovieListUiState.Success(moviesRepository.favoriteMoviesRepository().results)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -108,7 +123,8 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository) : ViewMod
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MovieDBApplication)
                 val moviesRepository = application.container.moviesRepository
-                MovieDBViewModel(moviesRepository = moviesRepository)
+                val savedMovieRepository = application.container.savedMovieRepository
+                MovieDBViewModel(moviesRepository = moviesRepository, savedMovieRepository = savedMovieRepository)
             }
         }
     }
