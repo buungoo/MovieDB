@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -43,14 +44,17 @@ import com.example.moviedb.model.MovieVideo
 import com.example.moviedb.ui.theme.getReviewCardScreenWidth
 import com.example.moviedb.ui.theme.getScreenWidth
 import com.example.moviedb.utils.Constants
+import com.example.moviedb.viewmodels.MovieDBViewModel
 import com.example.moviedb.viewmodels.SelectedMovieUiState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MovieDetailScreen(
-    selectedMovieUiState: SelectedMovieUiState,
+//    selectedMovieUiState: SelectedMovieUiState,
+    movieDBViewModel: MovieDBViewModel,
     modifier: Modifier = Modifier
 ) {
+    val selectedMovieUiState = movieDBViewModel.selectedMovieUiState
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
 
@@ -68,10 +72,18 @@ fun MovieDetailScreen(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    Text(
-                        text = selectedMovieUiState.movie.title,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    Row {
+                        Text(
+                            text = selectedMovieUiState.movie.title,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        Switch(checked = selectedMovieUiState.favorite, onCheckedChange = { isFavorite ->
+                            if (isFavorite)
+                                movieDBViewModel.saveMovie(selectedMovieUiState.movie)
+                            else
+                                movieDBViewModel.deleteMovie(selectedMovieUiState.movie)
+                        })
+                    }
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
                         text = selectedMovieUiState.movie.releaseDate,

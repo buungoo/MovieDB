@@ -43,6 +43,13 @@ fun StartScreen(
                 Text(text = stringResource(R.string.top_rated))
             }
             Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = { onOptionClicked("saved") },
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.saved))
+            }
         }
     }
 }

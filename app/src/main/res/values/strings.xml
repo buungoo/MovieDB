@@ -7,4 +7,5 @@
     <string name="back_button">Back</string>
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
+    <string name="saved">Saved</string>
 </resources>

@@ -1,7 +1,12 @@
+buildscript {
+    extra.apply { set ("room_version", "2.6.0") }
+}
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    id("com.google.devtools.ksp")
 //    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
 }
 
@@ -42,7 +47,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
@@ -78,8 +83,15 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 //    implementation(libs.androidx.room.common)
 //    implementation(libs.androidx.room.ktx)
-    implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
+
+    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    implementation("androidx.core:core-ktx:1.12.0")
+    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
+
+//    implementation("androidx.room:room-runtime:2.6.1")
+//    annotationProcessor("androidx.room:room-compiler:2.6.1")
 //    ksp("androidx.room:room-compiler:$2.6.1")
 
 
