@@ -19,4 +19,10 @@ interface MovieDao {
 
     @Query("DELETE FROM favorite_movies WHERE id = :id")
     suspend fun deleteFavoriteMovie(id: Long)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertCacheMovie(movie: Movie)
+
+    @Query("SELECT * FROM Cache_movies")
+    suspend fun getCacheMovies(): List<Movie>
 }

@@ -8,12 +8,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.WorkManager
 import com.example.moviedb.MovieDBApplication
+import com.example.moviedb.database.CacheMovieRepository
 import com.example.moviedb.database.FavoriteMoviesRepository
 import com.example.moviedb.database.MoviesRepository
 import com.example.moviedb.database.SavedMovieRepository
+import com.example.moviedb.database.WorkManagerMoviesRepository
+import com.example.moviedb.model.CacheMovie
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieDetails
+import com.example.moviedb.model.MovieReview
 import com.example.moviedb.model.MovieReviews
 import com.example.moviedb.model.MovieVideos
 import kotlinx.coroutines.launch
@@ -38,7 +43,11 @@ sealed interface SelectedMovieUiState {
     object Loading : SelectedMovieUiState
 }
 
-class MovieDBViewModel(private val moviesRepository: MoviesRepository, private val savedMovieRepository: SavedMovieRepository) : ViewModel() {
+class MovieDBViewModel(private val moviesRepository: MoviesRepository,
+                       private val savedMovieRepository: SavedMovieRepository,
+                       private val cachedMovieRepository: SavedMovieRepository,
+                       private val workManagerMoviesRepository: WorkManagerMoviesRepository
+    ) : ViewModel() {
 
     var movieListUiState: MovieListUiState by mutableStateOf(MovieListUiState.Loading)
         private set
@@ -64,6 +73,9 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
     }
 
     fun getPopularMovies() {
+
+//        private val workManager = WorkManager.getInstance()
+
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
@@ -73,6 +85,24 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
             } catch (e: HttpException) {
                 MovieListUiState.Error
             }
+            cacheMovie(moviesRepository.getPopularMovies().results)
+        }
+    }
+
+    fun getPopularWorkerMovies() {
+//        private val workManager = WorkManager.getInstance()
+
+        viewModelScope.launch {
+            movieListUiState = MovieListUiState.Loading
+            movieListUiState = try {
+                MovieListUiState.Success(moviesRepository.getPopularMovies().results)
+            } catch (e: IOException) {
+                MovieListUiState.Error
+            } catch (e: HttpException) {
+                MovieListUiState.Error
+            }
+//            cacheMovie(moviesRepository.getPopularMovies().results)
+            WorkManagerMoviesRepository.cacheMovies()
         }
     }
 
@@ -89,6 +119,19 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
         }
     }
 
+    fun getCachedMovies() {
+        viewModelScope.launch {
+            movieListUiState = MovieListUiState.Loading
+            movieListUiState = try {
+                MovieListUiState.Success(cachedMovieRepository.getSavedMovies())
+            } catch (e: IOException) {
+                MovieListUiState.Error
+            } catch (e: HttpException) {
+                MovieListUiState.Error
+            }
+        }
+    }
+
     fun saveMovie(movie: Movie) {
         viewModelScope.launch {
             savedMovieRepository.insertMovie(movie)
@@ -97,6 +140,20 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
                 moviesRepository.getMovieDetails(movie.id),
                 moviesRepository.getMovieReviews(movie.id),
                 moviesRepository.getMovieVideos(movie.id))
+        }
+    }
+
+    fun cacheMovie(movieList: List<Movie>) {
+        viewModelScope.launch {
+            // for each movie save to database
+            for (movie in movieList) {
+                savedMovieRepository.insertMovie(movie)
+                selectedMovieUiState = SelectedMovieUiState.Success(movie,
+                    true,
+                    MovieDetails(),
+                    MovieReviews(),
+                    MovieVideos())
+            }
         }
     }
 
@@ -131,12 +188,13 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
         when (option) {
             "popular" -> {
                 getPopularMovies()
+                // TODO: add caching
             }
             "top_rated" -> {
                 getTopRatedMovies()
             }
             "saved" -> {
-                getSavedMovies()
+                getCachedMovies()
             }
             else -> {
                 getPopularMovies()
@@ -150,7 +208,13 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MovieDBApplication)
                 val moviesRepository = application.container.moviesRepository
                 val savedMovieRepository = application.container.savedMovieRepository
-                MovieDBViewModel(moviesRepository = moviesRepository, savedMovieRepository = savedMovieRepository)
+                val cachedMovieRepository = application.container.savedMovieRepository
+                val workManagerMoviesRepository = application.container.workManagerMoviesRepository
+                MovieDBViewModel(moviesRepository = moviesRepository,
+                    savedMovieRepository = savedMovieRepository,
+                    cachedMovieRepository = cachedMovieRepository,
+                    workManagerMoviesRepository = workManagerMoviesRepository
+                )
             }
         }
     }

@@ -33,3 +33,23 @@ data class Movie(
     @SerialName(value = "overview")
     var overview: String,
 )
+
+@Serializable
+@Entity(tableName = "cache_movies")
+data class CacheMovie(
+    @PrimaryKey
+    @SerialName(value = "id")
+    var id: Long = 0L,
+
+    @SerialName(value = "title")
+    var title: String,
+
+    @SerialName(value = "poster_path")
+    var posterPath: String,
+
+    @SerialName(value = "release_date")
+    var releaseDate: String,
+
+    @SerialName(value = "overview")
+    var overview: String,
+)

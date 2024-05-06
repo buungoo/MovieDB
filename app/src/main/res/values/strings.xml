@@ -8,4 +8,5 @@
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
     <string name="saved">Saved</string>
+    <string name="error_caching_movies">Error Caching Movies</string>
 </resources>

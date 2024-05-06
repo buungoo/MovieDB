@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MovieReview(
     @SerialName(value = "author")
-    var author: String,
+    var author: String = "",
 
 //    @SerialName(value = "rating")
 //    var rating: Float,
 
     @SerialName(value = "content")
-    var content: String
+    var content: String = ""
 )

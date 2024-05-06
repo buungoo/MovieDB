@@ -70,3 +70,21 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMovieReposi
         movieDao.deleteFavoriteMovie(movie.id)
     }
 }
+
+class CacheMovieRepository(private val movieDao: MovieDao): SavedMovieRepository {
+    override suspend fun getSavedMovies(): List<Movie> {
+        return movieDao.getCacheMovies()
+    }
+
+    override suspend fun insertMovie(movie: Movie) {
+        movieDao.insertCacheMovie(movie)
+    }
+
+    override suspend fun getMovie(id: Long): Movie {
+        return movieDao.getMovie(id)
+    }
+
+    override suspend fun deleteMovie(movie: Movie) {
+        movieDao.deleteFavoriteMovie(movie.id)
+    }
+}
