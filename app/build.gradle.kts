@@ -97,6 +97,10 @@ dependencies {
 //    annotationProcessor("androidx.room:room-compiler:2.6.1")
 //    ksp("androidx.room:room-compiler:$2.6.1")
 
+    //JSON serializer
+    implementation(libs.jetbrains.kotlinx.serialization.json)
+
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

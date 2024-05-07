@@ -4,11 +4,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.moviedb.model.CacheMovie
 import com.example.moviedb.model.Movie
 
 @Dao
 interface MovieDao {
-    @Query("SELECT * FROM Favorite_movies")
+    @Query("SELECT * FROM favorite_movies")
     suspend fun getFavoriteMovies(): List<Movie>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -23,6 +24,6 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCacheMovie(movie: Movie)
 
-    @Query("SELECT * FROM Cache_movies")
+    @Query("SELECT * FROM cache_movies")
     suspend fun getCacheMovies(): List<Movie>
 }

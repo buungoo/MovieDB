@@ -10,7 +10,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.WorkManager
 import com.example.moviedb.MovieDBApplication
-import com.example.moviedb.database.CacheMovieRepository
 import com.example.moviedb.database.FavoriteMoviesRepository
 import com.example.moviedb.database.MoviesRepository
 import com.example.moviedb.database.SavedMovieRepository
@@ -73,9 +72,6 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
     }
 
     fun getPopularMovies() {
-
-//        private val workManager = WorkManager.getInstance()
-
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
@@ -91,18 +87,17 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
 
     fun getPopularWorkerMovies() {
 //        private val workManager = WorkManager.getInstance()
-
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                MovieListUiState.Success(moviesRepository.getPopularMovies().results)
+                MovieListUiState.Success(workManagerMoviesRepository.getPopularMovies().results)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
                 MovieListUiState.Error
             }
-//            cacheMovie(moviesRepository.getPopularMovies().results)
-            WorkManagerMoviesRepository.cacheMovies()
+            //cacheMovie(moviesRepository.getPopularMovies().results)
+            //WorkManagerMoviesRepository.cacheMovies()
         }
     }
 
@@ -187,7 +182,8 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
     fun setSelectedMovieCategory(option: String) {
         when (option) {
             "popular" -> {
-                getPopularMovies()
+                //getPopularMovies()
+                getPopularWorkerMovies()
                 // TODO: add caching
             }
             "top_rated" -> {
