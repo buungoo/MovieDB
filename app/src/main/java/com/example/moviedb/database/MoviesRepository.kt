@@ -50,7 +50,7 @@ interface SavedMovieRepository {
 
     suspend fun getMovies(): List<Movie>
 
-    suspend fun favoriteMovie(id: Long)
+    suspend fun favoriteMovie(movie: Movie)
 
     suspend fun unfavoriteMovie(id: Long)
 
@@ -72,8 +72,8 @@ class LocalMovieRepository(private val movieDao: MovieDao): SavedMovieRepository
         return movieDao.getCachedMovies()
     }
 
-    override suspend fun favoriteMovie(id: Long) {
-        movieDao.favoriteMovie(id)
+    override suspend fun favoriteMovie(movie: Movie) {
+        movieDao.insertMovie(movie)
     }
 
     override suspend fun unfavoriteMovie(id: Long) {

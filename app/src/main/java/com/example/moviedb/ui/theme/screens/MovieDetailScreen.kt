@@ -1,5 +1,6 @@
 package com.example.moviedb.screens
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -47,10 +49,9 @@ import com.example.moviedb.utils.Constants
 import com.example.moviedb.viewmodels.MovieDBViewModel
 import com.example.moviedb.viewmodels.SelectedMovieUiState
 
-@OptIn(ExperimentalFoundationApi::class)
+@androidx.annotation.OptIn(UnstableApi::class) @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MovieDetailScreen(
-//    selectedMovieUiState: SelectedMovieUiState,
     movieDBViewModel: MovieDBViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -78,11 +79,20 @@ fun MovieDetailScreen(
                             style = MaterialTheme.typography.headlineSmall
                         )
                         Switch(checked = selectedMovieUiState.movie.favorite, onCheckedChange = { isFavorite ->
-                            if (isFavorite)
-                                selectedMovieUiState.movie.favorite = false
-                                movieDBViewModel.favoriteMovie(selectedMovieUiState.movie)
+                            Log.d("ASDASD", "Hello World")
+                            if (isFavorite) {
+
+                                movieDBViewModel.favoriteMovie(selectedMovieUiState.movie,
+                                    selectedMovieUiState.movieDetails,
+                                    selectedMovieUiState.movieReviews,
+                                    selectedMovieUiState.movieVideos)
+                            }
                             else
-                                movieDBViewModel.unfavoriteMovie(selectedMovieUiState.movie.id)
+                                movieDBViewModel.unfavoriteMovie(selectedMovieUiState.movie,
+                                    selectedMovieUiState.movieDetails,
+                                    selectedMovieUiState.movieReviews,
+                                    selectedMovieUiState.movieVideos
+                                )
                         })
                     }
                     Spacer(modifier = Modifier.size(8.dp))

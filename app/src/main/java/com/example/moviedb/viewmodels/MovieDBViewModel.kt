@@ -54,7 +54,9 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                MovieListUiState.Success(moviesRepository.getTopRatedMovies().results)
+                val fetchedMovies = moviesRepository.getTopRatedMovies().results
+                cacheMovies(fetchedMovies)
+                MovieListUiState.Success(fetchedMovies)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -70,9 +72,9 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                val calledMovies = moviesRepository.getPopularMovies().results
-                cacheMovies(calledMovies)
-                MovieListUiState.Success(calledMovies)
+                val fetchedMovies = moviesRepository.getPopularMovies().results
+                cacheMovies(fetchedMovies)
+                MovieListUiState.Success(fetchedMovies)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -102,7 +104,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                MovieListUiState.Success(savedMovieRepository.getSavedMovies())
+                MovieListUiState.Success(localMoviesRepository.getMovies())
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -115,7 +117,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                MovieListUiState.Success(cachedMovieRepository.getSavedMovies())
+                MovieListUiState.Success(localMoviesRepository.getMovies())
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -124,47 +126,47 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         }
     }
 
-    fun favoriteMovie(movie: Movie) {
+    fun getFavoriteMovies() {
         viewModelScope.launch {
-            localMoviesRepository.insertMovie(movie)
-            selectedMovieUiState = SelectedMovieUiState.Success(movie,
-                moviesRepository.getMovieDetails(movie.id),
-                moviesRepository.getMovieReviews(movie.id),
-                moviesRepository.getMovieVideos(movie.id))
+            movieListUiState = MovieListUiState.Loading
+            movieListUiState = try {
+                MovieListUiState.Success(localMoviesRepository.getFavoriteMovies())
+            } catch (e: IOException) {
+                MovieListUiState.Error
+            } catch (e: HttpException) {
+                MovieListUiState.Error
+            }
         }
     }
 
-    fun unfavoriteMovie(movie: Movie) {
+    fun favoriteMovie(movie: Movie, details: MovieDetails, reviews: MovieReviews, videos: MovieVideos) {
+        movie.favorite = true
         viewModelScope.launch {
-            localMoviesRepository.deleteMovie(movie)
-            selectedMovieUiState = SelectedMovieUiState.Success(movie,
-                moviesRepository.getMovieDetails(movie.id),
-                moviesRepository.getMovieReviews(movie.id),
-                moviesRepository.getMovieVideos(movie.id))
+            localMoviesRepository.insertMovie(movie)
+            selectedMovieUiState = SelectedMovieUiState.Success(movie, MovieDetails(), MovieReviews(), MovieVideos())
+        }
+    }
+
+    fun unfavoriteMovie(movie: Movie, details: MovieDetails, reviews: MovieReviews, videos: MovieVideos) {
+        movie.favorite = false
+        viewModelScope.launch {
+            localMoviesRepository.unfavoriteMovie(movie.id)
+            selectedMovieUiState = SelectedMovieUiState.Success(movie, MovieDetails(), MovieReviews(), MovieVideos())
         }
     }
 
     fun cacheMovies(movieList: List<Movie>) {
         viewModelScope.launch {
+            localMoviesRepository.decacheMovies()
             // for each movie save to database
             for (movie in movieList) {
+                movie.cached = true
                 localMoviesRepository.insertMovie(movie)
 //                selectedMovieUiState = SelectedMovieUiState.Success(movie,
 //                    MovieDetails(),
 //                    MovieReviews(),
 //                    MovieVideos())
             }
-        }
-    }
-
-    fun deleteMovie(movie: Movie) {
-        viewModelScope.launch {
-            savedMovieRepository.deleteMovie(movie)
-            selectedMovieUiState = SelectedMovieUiState.Success(
-                movie = movie.copy(favorite = false),
-                moviesRepository.getMovieDetails(movie.id),
-                moviesRepository.getMovieReviews(movie.id),
-                moviesRepository.getMovieVideos(movie.id))
         }
     }
 
@@ -175,7 +177,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
                 val movieDetails = moviesRepository.getMovieDetails(movie.id)
                 val movieReviews = moviesRepository.getMovieReviews(movie.id)
                 val movieVideos = moviesRepository.getMovieVideos(movie.id)
-                SelectedMovieUiState.Success(movie, savedMovieRepository.getMovie(movie.id) != null, movieDetails, movieReviews, movieVideos)
+                SelectedMovieUiState.Success(movie, MovieDetails(), MovieReviews(), MovieVideos())
             } catch (e: IOException) {
                 SelectedMovieUiState.Error
             } catch (e: HttpException) {
@@ -193,7 +195,10 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
             "top_rated" -> {
                 getTopRatedMovies()
             }
-            "saved" -> {
+            "favorite" -> {
+                getFavoriteMovies()
+            }
+            "cached" -> {
                 getCachedMovies()
             }
             else -> {

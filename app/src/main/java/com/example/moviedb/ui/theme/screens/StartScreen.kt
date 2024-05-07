@@ -44,11 +44,19 @@ fun StartScreen(
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = { onOptionClicked("saved") },
+                onClick = { onOptionClicked("favorite") },
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(text = stringResource(R.string.saved))
+                Text(text = stringResource(R.string.favorite))
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = { onOptionClicked("cached") },
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.cached))
             }
         }
     }

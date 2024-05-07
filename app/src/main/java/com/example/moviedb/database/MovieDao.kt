@@ -20,6 +20,9 @@ interface MovieDao {
         insertMovieInternal(movie)
     }
 
+    @Query("DELETE FROM movies WHERE id = :id")
+    suspend fun deleteMovie(id: Long)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovieInternal(movie: Movie)
 
@@ -27,18 +30,6 @@ interface MovieDao {
     suspend fun decacheMovies() {
         updateCachedStatusForFavorites()
         deleteNonFavoriteMovies()
-    }
-
-
-    // TODO: unfavorite
-    @Transaction
-    suspend fun unfavoriteMovie(id: Long) {
-        val movie = getMovie(id)
-        if (movie.favorite) {
-            unfavoriteMovieInternal(id)
-        } else {
-            deleteMovie(id)
-        }
     }
 
     @Query("DELETE FROM movies WHERE favorite = 0")
@@ -53,11 +44,16 @@ interface MovieDao {
     @Query("SELECT * FROM movies WHERE cached = 1")
     suspend fun getCachedMovies(): List<Movie>
 
-    @Query("UPDATE movies SET favorite = 1 WHERE id = :id")
-    suspend fun favoriteMovie(id: Long)
-
-    @Query("UPDATE movies SET favorite = 0 WHERE id = :id")
-    suspend fun unfavoriteMovie(id: Long)
+    @Transaction
+    suspend fun unfavoriteMovie(id: Long) {
+        val localMovie = getMovie(id)
+        if (localMovie.cached) {
+            localMovie.favorite = false
+            insertMovieInternal(localMovie)
+        } else {
+            deleteMovie(id)
+        }
+    }
 
     @Query("SELECT * FROM movies WHERE favorite = 1")
     suspend fun getFavoriteMovies(): List<Movie>

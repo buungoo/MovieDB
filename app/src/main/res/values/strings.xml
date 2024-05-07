@@ -9,4 +9,6 @@
     <string name="top_rated">Top Rated</string>
     <string name="saved">Saved</string>
     <string name="error_caching_movies">Error Caching Movies</string>
+    <string name="favorite">Favorite</string>
+    <string name="cached">Cached</string>
 </resources>
