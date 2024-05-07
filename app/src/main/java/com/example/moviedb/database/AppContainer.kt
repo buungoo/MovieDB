@@ -41,15 +41,11 @@ class DefaultAppContainer(private val context: Context): AppContainer {
         retrofit.create(MovieDBApiService::class.java)
     }
 
-    override val moviesRepository: MoviesRepository by lazy {
-        NetworkMoviesRepository(retrofitService)
+    override val moviesRepository: NetworkMoviesRepository by lazy {
+        NetworkMoviesRepository(context, retrofitService)
     }
 
     override val localMoviesRepository: SavedMovieRepository by lazy {
         LocalMovieRepository(MovieDatabase.getDatabase(context).movieDao())
     }
-
-//    override val workManagerMoviesRepository: WorkManagerMoviesRepository by lazy {
-//        WorkManagerMoviesRepository(context, retrofitService)
-//    }
 }

@@ -46,16 +46,11 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
     var selectedMovieUiState: SelectedMovieUiState by mutableStateOf(SelectedMovieUiState.Loading)
         private set
 
-    init {
-        getPopularMovies()
-    }
-
     private fun getTopRatedMovies() {
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
                 val fetchedMovies = moviesRepository.getTopRatedMovies().results
-                cacheMovies(fetchedMovies)
                 MovieListUiState.Success(fetchedMovies)
             } catch (e: IOException) {
                 MovieListUiState.Error
@@ -66,45 +61,11 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
     }
 
     fun getPopularMovies() {
-
-//        private val workManager = WorkManager.getInstance()
-
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
                 val fetchedMovies = moviesRepository.getPopularMovies().results
-                cacheMovies(fetchedMovies)
                 MovieListUiState.Success(fetchedMovies)
-            } catch (e: IOException) {
-                MovieListUiState.Error
-            } catch (e: HttpException) {
-                MovieListUiState.Error
-            }
-        }
-    }
-
-    fun getPopularWorkerMovies() {
-//        private val workManager = WorkManager.getInstance()
-
-        viewModelScope.launch {
-            movieListUiState = MovieListUiState.Loading
-            movieListUiState = try {
-                MovieListUiState.Success(moviesRepository.getPopularMovies().results)
-            } catch (e: IOException) {
-                MovieListUiState.Error
-            } catch (e: HttpException) {
-                MovieListUiState.Error
-            }
-//            cacheMovie(moviesRepository.getPopularMovies().results)
-//            WorkManagerMoviesRepository.cacheMovies()
-        }
-    }
-
-    private fun getSavedMovies() {
-        viewModelScope.launch {
-            movieListUiState = MovieListUiState.Loading
-            movieListUiState = try {
-                MovieListUiState.Success(localMoviesRepository.getMovies())
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -152,21 +113,6 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         viewModelScope.launch {
             localMoviesRepository.unfavoriteMovie(movie.id)
             selectedMovieUiState = SelectedMovieUiState.Success(movie, MovieDetails(), MovieReviews(), MovieVideos())
-        }
-    }
-
-    fun cacheMovies(movieList: List<Movie>) {
-        viewModelScope.launch {
-            localMoviesRepository.decacheMovies()
-            // for each movie save to database
-            for (movie in movieList) {
-                movie.cached = true
-                localMoviesRepository.insertMovie(movie)
-//                selectedMovieUiState = SelectedMovieUiState.Success(movie,
-//                    MovieDetails(),
-//                    MovieReviews(),
-//                    MovieVideos())
-            }
         }
     }
 

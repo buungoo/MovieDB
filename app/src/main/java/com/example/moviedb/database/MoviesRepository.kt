@@ -1,14 +1,20 @@
 package com.example.moviedb.database
 
+import android.content.Context
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieDetails
 import com.example.moviedb.model.MovieResponse
 import com.example.moviedb.model.MovieReviews
 import com.example.moviedb.model.MovieVideos
 import com.example.moviedb.network.MovieDBApiService
+import com.example.moviedb.workers.CacheWorker
 
 
 interface MoviesRepository {
+    var latestFetch: MutableList<Movie>
+
     suspend fun getPopularMovies(): MovieResponse
 
     suspend fun getTopRatedMovies(): MovieResponse
@@ -20,12 +26,24 @@ interface MoviesRepository {
     suspend fun getMovieVideos(movieId: Long): MovieVideos
 }
 
-class NetworkMoviesRepository(private val apiService: MovieDBApiService) : MoviesRepository {
+class NetworkMoviesRepository(context: Context, private val apiService: MovieDBApiService) : MoviesRepository {
+
+    private val workManager = WorkManager.getInstance(context)
+    override var latestFetch = mutableListOf<Movie>()
+
     override suspend fun getPopularMovies(): MovieResponse {
+        this.latestFetch = apiService.getPopularMovies().results.toMutableList()
+        val cacheWorker = OneTimeWorkRequestBuilder<CacheWorker>()
+            .build()
+        workManager.enqueue(cacheWorker)
         return apiService.getPopularMovies()
     }
 
     override suspend fun getTopRatedMovies(): MovieResponse {
+        latestFetch = apiService.getTopRatedMovies().results.toMutableList()
+        val cacheWorker = OneTimeWorkRequestBuilder<CacheWorker>()
+            .build()
+        workManager.enqueue(cacheWorker)
         return apiService.getTopRatedMovies()
     }
 
@@ -88,39 +106,3 @@ class LocalMovieRepository(private val movieDao: MovieDao): SavedMovieRepository
         movieDao.decacheMovies()
     }
 }
-
-//class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMovieRepository {
-//    override suspend fun getSavedMovies(): List<Movie> {
-//        return movieDao.getFavoriteMovies()
-//    }
-//
-//    override suspend fun insertMovie(id: Long) {
-//        movieDao.favoriteMovie(id)
-//    }
-//
-//    override suspend fun getMovie(id: Long): Movie {
-//        return movieDao.getMovie(id)
-//    }
-//
-//    override suspend fun deleteMovie(movie: Movie) {
-//        movieDao.unfavoriteMovie(movie.id)
-//    }
-//}
-//
-//class CacheMovieRepository(private val movieDao: MovieDao): SavedMovieRepository {
-//    override suspend fun getSavedMovies(): List<Movie> {
-//        return movieDao.getCacheMovies()
-//    }
-//
-//    override suspend fun insertMovie(movie: Movie) {
-//        movieDao.insertCacheMovie(movie)
-//    }
-//
-//    override suspend fun getMovie(id: Long): Movie {
-//        return movieDao.getMovie(id)
-//    }
-//
-//    override suspend fun deleteMovie(movie: Movie) {
-//        movieDao.unfavoriteMovie(movie.id)
-//    }
-//}
