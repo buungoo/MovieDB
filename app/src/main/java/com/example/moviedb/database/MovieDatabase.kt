@@ -8,7 +8,7 @@ import com.example.moviedb.model.CacheMovie
 import com.example.moviedb.model.Movie
 
 
-@Database(entities = [Movie::class, CacheMovie::class], version = 2, exportSchema = false)
+@Database(entities = [Movie::class], version = 2, exportSchema = false)
 abstract class MovieDatabase : RoomDatabase() {
     abstract fun movieDao(): MovieDao
 

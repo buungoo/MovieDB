@@ -11,8 +11,7 @@ import retrofit2.Retrofit
 
 interface AppContainer {
     val moviesRepository: MoviesRepository
-    val savedMovieRepository: SavedMovieRepository
-    val workManagerMoviesRepository: WorkManagerMoviesRepository
+    val localMoviesRepository: SavedMovieRepository
 }
 
 class DefaultAppContainer(private val context: Context): AppContainer {

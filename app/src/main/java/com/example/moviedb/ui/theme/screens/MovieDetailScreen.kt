@@ -77,11 +77,12 @@ fun MovieDetailScreen(
                             text = selectedMovieUiState.movie.title,
                             style = MaterialTheme.typography.headlineSmall
                         )
-                        Switch(checked = selectedMovieUiState.favorite, onCheckedChange = { isFavorite ->
+                        Switch(checked = selectedMovieUiState.movie.favorite, onCheckedChange = { isFavorite ->
                             if (isFavorite)
-                                movieDBViewModel.saveMovie(selectedMovieUiState.movie)
+                                selectedMovieUiState.movie.favorite = false
+                                movieDBViewModel.favoriteMovie(selectedMovieUiState.movie)
                             else
-                                movieDBViewModel.deleteMovie(selectedMovieUiState.movie)
+                                movieDBViewModel.unfavoriteMovie(selectedMovieUiState.movie.id)
                         })
                     }
                     Spacer(modifier = Modifier.size(8.dp))

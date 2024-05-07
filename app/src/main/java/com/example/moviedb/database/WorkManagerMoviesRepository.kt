@@ -14,15 +14,18 @@ import com.example.moviedb.workers.CacheWorker
 import java.io.Serializable
 
 class WorkManagerMoviesRepository(context: Context, private val movieDao: MovieDao, private val apiService: MovieDBApiService) : MoviesRepository {
-
+    val context = context
     private val workManager = WorkManager.getInstance(context)
 
     override suspend fun getPopularMovies(): MovieResponse {
         val apiMovies = apiService.getPopularMovies()
         val cacheWorker = OneTimeWorkRequestBuilder<CacheWorker>()
-        cacheWorker.setInputData(createInputDataForWorkRequest(apiMovies))
-
-        workManager.enqueue(cacheWorker.build())
+            .build()
+        WorkManager.getInstance(context)
+            .enqueue(cacheWorker)
+//        cacheWorker.setInputData(createInputDataForWorkRequest(apiMovies))
+//
+//        workManager.enqueue(cacheWorker.build())
         return apiService.getPopularMovies()
     }
 
@@ -49,7 +52,7 @@ class WorkManagerMoviesRepository(context: Context, private val movieDao: MovieD
 
     private fun createInputDataForWorkRequest(movieResponse: MovieResponse): Data {
         val inputData = Data.Builder()
-            .put("results", movieResponse)
+            .putStrin("results", movieResponse)
             .build()
         return inputData
     }

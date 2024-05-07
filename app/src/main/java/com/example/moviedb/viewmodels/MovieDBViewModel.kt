@@ -8,17 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.work.WorkManager
 import com.example.moviedb.MovieDBApplication
-import com.example.moviedb.database.CacheMovieRepository
-import com.example.moviedb.database.FavoriteMoviesRepository
 import com.example.moviedb.database.MoviesRepository
 import com.example.moviedb.database.SavedMovieRepository
-import com.example.moviedb.database.WorkManagerMoviesRepository
-import com.example.moviedb.model.CacheMovie
 import com.example.moviedb.model.Movie
 import com.example.moviedb.model.MovieDetails
-import com.example.moviedb.model.MovieReview
 import com.example.moviedb.model.MovieReviews
 import com.example.moviedb.model.MovieVideos
 import kotlinx.coroutines.launch
@@ -34,7 +28,6 @@ sealed interface MovieListUiState {
 sealed interface SelectedMovieUiState {
     data class Success(
         val movie: Movie,
-        val favorite: Boolean,
         val movieDetails: MovieDetails,
         val movieReviews: MovieReviews,
         val movieVideos: MovieVideos
@@ -44,9 +37,7 @@ sealed interface SelectedMovieUiState {
 }
 
 class MovieDBViewModel(private val moviesRepository: MoviesRepository,
-                       private val savedMovieRepository: SavedMovieRepository,
-                       private val cachedMovieRepository: SavedMovieRepository,
-                       private val workManagerMoviesRepository: WorkManagerMoviesRepository
+                       private val localMoviesRepository: SavedMovieRepository,
     ) : ViewModel() {
 
     var movieListUiState: MovieListUiState by mutableStateOf(MovieListUiState.Loading)
@@ -79,13 +70,14 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                MovieListUiState.Success(moviesRepository.getPopularMovies().results)
+                val calledMovies = moviesRepository.getPopularMovies().results
+                cacheMovies(calledMovies)
+                MovieListUiState.Success(calledMovies)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
                 MovieListUiState.Error
             }
-            cacheMovie(moviesRepository.getPopularMovies().results)
         }
     }
 
@@ -102,7 +94,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
                 MovieListUiState.Error
             }
 //            cacheMovie(moviesRepository.getPopularMovies().results)
-            WorkManagerMoviesRepository.cacheMovies()
+//            WorkManagerMoviesRepository.cacheMovies()
         }
     }
 
@@ -132,27 +124,35 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
         }
     }
 
-    fun saveMovie(movie: Movie) {
+    fun favoriteMovie(movie: Movie) {
         viewModelScope.launch {
-            savedMovieRepository.insertMovie(movie)
+            localMoviesRepository.insertMovie(movie)
             selectedMovieUiState = SelectedMovieUiState.Success(movie,
-                true,
                 moviesRepository.getMovieDetails(movie.id),
                 moviesRepository.getMovieReviews(movie.id),
                 moviesRepository.getMovieVideos(movie.id))
         }
     }
 
-    fun cacheMovie(movieList: List<Movie>) {
+    fun unfavoriteMovie(movie: Movie) {
+        viewModelScope.launch {
+            localMoviesRepository.deleteMovie(movie)
+            selectedMovieUiState = SelectedMovieUiState.Success(movie,
+                moviesRepository.getMovieDetails(movie.id),
+                moviesRepository.getMovieReviews(movie.id),
+                moviesRepository.getMovieVideos(movie.id))
+        }
+    }
+
+    fun cacheMovies(movieList: List<Movie>) {
         viewModelScope.launch {
             // for each movie save to database
             for (movie in movieList) {
-                savedMovieRepository.insertMovie(movie)
-                selectedMovieUiState = SelectedMovieUiState.Success(movie,
-                    true,
-                    MovieDetails(),
-                    MovieReviews(),
-                    MovieVideos())
+                localMoviesRepository.insertMovie(movie)
+//                selectedMovieUiState = SelectedMovieUiState.Success(movie,
+//                    MovieDetails(),
+//                    MovieReviews(),
+//                    MovieVideos())
             }
         }
     }
@@ -160,8 +160,8 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
     fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
             savedMovieRepository.deleteMovie(movie)
-            selectedMovieUiState = SelectedMovieUiState.Success(movie,
-                false,
+            selectedMovieUiState = SelectedMovieUiState.Success(
+                movie = movie.copy(favorite = false),
                 moviesRepository.getMovieDetails(movie.id),
                 moviesRepository.getMovieReviews(movie.id),
                 moviesRepository.getMovieVideos(movie.id))
@@ -207,13 +207,9 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository,
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MovieDBApplication)
                 val moviesRepository = application.container.moviesRepository
-                val savedMovieRepository = application.container.savedMovieRepository
-                val cachedMovieRepository = application.container.savedMovieRepository
-                val workManagerMoviesRepository = application.container.workManagerMoviesRepository
+                val localMoviesRepository = application.container.localMoviesRepository
                 MovieDBViewModel(moviesRepository = moviesRepository,
-                    savedMovieRepository = savedMovieRepository,
-                    cachedMovieRepository = cachedMovieRepository,
-                    workManagerMoviesRepository = workManagerMoviesRepository
+                    localMoviesRepository = localMoviesRepository,
                 )
             }
         }

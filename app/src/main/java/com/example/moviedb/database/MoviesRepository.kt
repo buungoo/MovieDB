@@ -43,48 +43,84 @@ class NetworkMoviesRepository(private val apiService: MovieDBApiService) : Movie
 }
 
 interface SavedMovieRepository {
-    suspend fun getSavedMovies(): List<Movie>
 
     suspend fun insertMovie(movie: Movie)
 
     suspend fun getMovie(id: Long): Movie
 
+    suspend fun getMovies(): List<Movie>
 
-    suspend fun deleteMovie(movie: Movie)
+    suspend fun favoriteMovie(id: Long)
+
+    suspend fun unfavoriteMovie(id: Long)
+
+    suspend fun getFavoriteMovies(): List<Movie>
+
+    suspend fun decacheMovies()
 }
 
-class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMovieRepository {
-    override suspend fun getSavedMovies(): List<Movie> {
+class LocalMovieRepository(private val movieDao: MovieDao): SavedMovieRepository {
+    override suspend fun insertMovie(movie: Movie) {
+        movieDao.insertMovie(movie)
+    }
+
+    override suspend fun getMovie(id: Long): Movie {
+        return movieDao.getMovie(id)
+    }
+
+    override suspend fun getMovies(): List<Movie> {
+        return movieDao.getCachedMovies()
+    }
+
+    override suspend fun favoriteMovie(id: Long) {
+        movieDao.favoriteMovie(id)
+    }
+
+    override suspend fun unfavoriteMovie(id: Long) {
+        movieDao.unfavoriteMovie(id)
+    }
+
+    override suspend fun getFavoriteMovies(): List<Movie> {
         return movieDao.getFavoriteMovies()
     }
 
-    override suspend fun insertMovie(movie: Movie) {
-        movieDao.insertFavoriteMovie(movie)
-    }
-
-    override suspend fun getMovie(id: Long): Movie {
-        return movieDao.getMovie(id)
-    }
-
-    override suspend fun deleteMovie(movie: Movie) {
-        movieDao.deleteFavoriteMovie(movie.id)
+    override suspend fun decacheMovies() {
+        movieDao.decacheMovies()
     }
 }
 
-class CacheMovieRepository(private val movieDao: MovieDao): SavedMovieRepository {
-    override suspend fun getSavedMovies(): List<Movie> {
-        return movieDao.getCacheMovies()
-    }
-
-    override suspend fun insertMovie(movie: Movie) {
-        movieDao.insertCacheMovie(movie)
-    }
-
-    override suspend fun getMovie(id: Long): Movie {
-        return movieDao.getMovie(id)
-    }
-
-    override suspend fun deleteMovie(movie: Movie) {
-        movieDao.deleteFavoriteMovie(movie.id)
-    }
-}
+//class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMovieRepository {
+//    override suspend fun getSavedMovies(): List<Movie> {
+//        return movieDao.getFavoriteMovies()
+//    }
+//
+//    override suspend fun insertMovie(id: Long) {
+//        movieDao.favoriteMovie(id)
+//    }
+//
+//    override suspend fun getMovie(id: Long): Movie {
+//        return movieDao.getMovie(id)
+//    }
+//
+//    override suspend fun deleteMovie(movie: Movie) {
+//        movieDao.unfavoriteMovie(movie.id)
+//    }
+//}
+//
+//class CacheMovieRepository(private val movieDao: MovieDao): SavedMovieRepository {
+//    override suspend fun getSavedMovies(): List<Movie> {
+//        return movieDao.getCacheMovies()
+//    }
+//
+//    override suspend fun insertMovie(movie: Movie) {
+//        movieDao.insertCacheMovie(movie)
+//    }
+//
+//    override suspend fun getMovie(id: Long): Movie {
+//        return movieDao.getMovie(id)
+//    }
+//
+//    override suspend fun deleteMovie(movie: Movie) {
+//        movieDao.unfavoriteMovie(movie.id)
+//    }
+//}
