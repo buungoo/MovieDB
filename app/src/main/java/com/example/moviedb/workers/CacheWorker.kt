@@ -38,7 +38,7 @@ class CacheWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx,
                 applicationContext.resources.getString(R.string.error_caching_movies),
                 throwable
             )
-            Result.failure()
+            Result.retry()
         }
     }
 }

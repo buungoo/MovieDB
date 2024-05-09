@@ -79,7 +79,6 @@ fun MovieDetailScreen(
                             style = MaterialTheme.typography.headlineSmall
                         )
                         Switch(checked = selectedMovieUiState.movie.favorite, onCheckedChange = { isFavorite ->
-                            Log.d("ASDASD", "Hello World")
                             if (isFavorite) {
 
                                 movieDBViewModel.favoriteMovie(selectedMovieUiState.movie,
